@@ -502,7 +502,7 @@ let SheetView = widgets.DOMWidgetView.extend({
             });
             this._search(false, true);
             this.hot.render();
-            resolve()
+            resolve(null)
         })
     },
     set_cell: function(row, column, value) {
