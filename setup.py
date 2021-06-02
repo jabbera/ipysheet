@@ -1,5 +1,5 @@
 """
-ipysheet_jabbera setup
+ipysheet setup
 """
 import json
 from pathlib import Path
@@ -9,7 +9,7 @@ import setuptools
 HERE = Path(__file__).parent.resolve()
 
 # The name of the project
-name = "ipysheet_jabbera"
+name = "ipysheet"
 
 lab_path = (HERE / name / "labextension")
 
@@ -19,7 +19,7 @@ ensured_targets = [
     str(lab_path / "static/style.js")
 ]
 
-labext_name = "ipysheet_jabbera"
+labext_name = "ipysheet"
 
 data_files_spec = [
     ("share/jupyter/labextensions/%s" % labext_name, str(lab_path), "**"),
@@ -44,6 +44,7 @@ setup_args = dict(
     packages=setuptools.find_packages(),
     install_requires=[
         "jupyter_server>=1.6,<2"
+        "ipywidgets>=7.5.0,<8.0",
     ],
     zip_safe=False,
     include_package_data=True,
