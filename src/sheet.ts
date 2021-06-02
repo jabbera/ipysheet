@@ -1,23 +1,23 @@
 import * as widgets  from '@jupyter-widgets/base';
-import {cloneDeep, extend, includes as contains, each, debounce, times, map, unzip as transpose} from 'lodash';
-import {semver_range} from './version';
-import {RendererModel} from './renderer';
+import {cloneDeep, extend, includes as contains, each, times, map, unzip as transpose} from 'lodash';
+import {semver_range} from './version'
+import {RendererModel} from './renderer'
 import './widget_cell_type';
 
 // @ts-ignore
-import * as Handsontable from 'handsontable';
+import Handsontable from 'handsontable';
 
 // CSS
 import 'pikaday/css/pikaday.css';
 import 'handsontable/dist/handsontable.min.css';
-import '../css/custom.css';
+import '../style/base.css';
 
 
 let CellRangeModel = widgets.WidgetModel.extend({
     defaults: function() {
         return extend(CellRangeModel.__super__.defaults.call(this), {
             _model_name : 'CellRangeModel',
-            _model_module : 'ipysheet',
+            _model_module : 'ipysheet_jabbera',
             _model_module_version : semver_range,
             value : null,
             row_start: 1,
@@ -50,8 +50,8 @@ let SheetModel = widgets.DOMWidgetModel.extend({
         return extend(SheetModel.__super__.defaults.call(this), {
             _model_name : 'SheetModel',
             _view_name : 'SheetView',
-            _model_module : 'ipysheet',
-            _view_module : 'ipysheet',
+            _model_module : 'ipysheet_jabbera',
+            _view_module : 'ipysheet_jabbera',
             _model_module_version : semver_range,
             _view_module_version : semver_range,
             rows: 3,
@@ -111,7 +111,7 @@ let SheetModel = widgets.DOMWidgetModel.extend({
         this.trigger('data_change');
     },
     _cell_data_to_grid: function(cell) {
-        let value = cell.get('value');
+        cell.get('value');
         for(let i = cell.get('row_start'); i <= cell.get('row_end'); i++) {
             for(let j = cell.get('column_start'); j <= cell.get('column_end'); j++) {
                 let value = cell.get('value');
@@ -164,9 +164,9 @@ let SheetModel = widgets.DOMWidgetModel.extend({
         this._updating_grid = true;
         try {
             each(this.get('cells'), (cell) => {
-                let rows = [];
+                let rows: any[] = [];
                 for(let i = cell.get('row_start'); i <= cell.get('row_end'); i++) {
-                    let row = [];
+                    let row: any[] = [];
                     for(let j = cell.get('column_start'); j <= cell.get('column_end'); j++) {
                         //let cell_row = i - cell.get('row_start');
                         //let cell_col = j - cell.get('column_start');
@@ -413,7 +413,7 @@ let SheetView = widgets.DOMWidgetView.extend({
             return;
         }
 
-        let res = this.hot.getPlugin('search').query(token);
+        this.hot.getPlugin('search').query(token);
         if (render) {
             this.hot.render();
         }
@@ -502,7 +502,7 @@ let SheetView = widgets.DOMWidgetView.extend({
             });
             this._search(false, true);
             this.hot.render();
-            resolve()
+            resolve(undefined);
         })
     },
     set_cell: function(row, column, value) {

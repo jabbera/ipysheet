@@ -6,15 +6,15 @@ from traitlets import Unicode, CInt, List, Tuple, Instance, Union, Dict, Bool, A
 
 from .serializer import create_value_serializer
 from .utils import transpose, adapt_value
-from ._version import __version_js__
+from ._version import __version__
 
-semver_range_frontend = "~" + __version_js__
+semver_range_frontend = "~" + __version__
 
 
-@widgets.register('ipysheet.Cell')
+@widgets.register('ipysheet_jabbera.Cell')
 class Cell(widgets.Widget):
     _model_name = Unicode('CellRangeModel').tag(sync=True)
-    _model_module = Unicode('ipysheet').tag(sync=True)
+    _model_module = Unicode('ipysheet_jabbera').tag(sync=True)
     # _view_module_version = Unicode('^0.1.0').tag(sync=True)
     _model_module_version = Unicode(semver_range_frontend).tag(sync=True)
 
@@ -75,18 +75,18 @@ class Cell(widgets.Widget):
 Cell.choice.default_value = None
 
 
-@widgets.register('ipysheet.Range')
+@widgets.register('ipysheet_jabbera.Range')
 class Range(widgets.Widget):
     value = Union([List(), List(Instance(list))], default_value=[0, 1]).tag(sync=True)
 
 
-@widgets.register('ipysheet.Sheet')
+@widgets.register('ipysheet_jabbera.Sheet')
 class Sheet(widgets.DOMWidget):
     """"""
     _view_name = Unicode('SheetView').tag(sync=True)
     _model_name = Unicode('SheetModel').tag(sync=True)
-    _view_module = Unicode('ipysheet').tag(sync=True)
-    _model_module = Unicode('ipysheet').tag(sync=True)
+    _view_module = Unicode('ipysheet_jabbera').tag(sync=True)
+    _model_module = Unicode('ipysheet_jabbera').tag(sync=True)
     _view_module_version = Unicode(semver_range_frontend).tag(sync=True)
     _model_module_version = Unicode(semver_range_frontend).tag(sync=True)
 
@@ -109,8 +109,8 @@ class Sheet(widgets.DOMWidget):
 
         Example:
 
-        >>> sheet = ipysheet.sheet(rows=10, columns=5)
-        >>> cell = ipysheet.cell(2,0, value='hello')
+        >>> sheet = ipysheet_jabbera.sheet(rows=10, columns=5)
+        >>> cell = ipysheet_jabbera.cell(2,0, value='hello')
         >>> assert sheet[2,0] is cell
         >>> sheet[2,0].value = 'bonjour'
 
@@ -125,9 +125,9 @@ class Sheet(widgets.DOMWidget):
 
 class Renderer(widgets.Widget):
     _model_name = Unicode('RendererModel').tag(sync=True)
-    _view_module = Unicode('ipysheet').tag(sync=True)
-    _model_module = Unicode('ipysheet').tag(sync=True)
+    _view_module = Unicode('ipysheet_jabbera').tag(sync=True)
+    _model_module = Unicode('ipysheet_jabbera').tag(sync=True)
     _view_module_version = Unicode(semver_range_frontend).tag(sync=True)
     _model_module_version = Unicode(semver_range_frontend).tag(sync=True)
-    name = Unicode('custom').tag(sync=True)
+    name = Unicode('base').tag(sync=True)
     code = Unicode('').tag(sync=True)

@@ -45,11 +45,13 @@
     "watch:labextension": "jupyter labextension watch ."
   },
   "resolutions": {
-    "@types/backbone": "1.4.1"
+    "@types/backbone": "1.4.1",
+    "handsontable": "6.2.2"
   },
   "dependencies": {
     "@jupyter-widgets/base": "^4.0.0",
-    "@jupyterlab/application": "^3.0.0"
+    "@jupyterlab/application": "^3.0.0",
+    "handsontable": "^6.2.2"
   },
   "devDependencies": {
     "@jupyterlab/builder": "^3.0.0",

@@ -8,7 +8,7 @@ if ((window as any).require) {
   (window as any).require.config({
     map: {
       '*': {
-        "ipysheet": "nbextensions/ipysheet/index",
+        "ipysheet_jabbera": "nbextensions/ipysheet_jabbera/index",
         // "jupyter-js-widgets": "nbextensions/jupyter-js-widgets/extension"
       },
     },

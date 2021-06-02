@@ -1,7 +1,7 @@
-import * as widgets  from '@jupyter-widgets/base';
+import * as widgets from '@jupyter-widgets/base';
 import * as Handsontable from 'handsontable';
-import {extend, forEach} from 'lodash';
-import {semver_range} from './version';
+import { forEach } from 'lodash';
+import { semver_range } from './version';
 
 
 export class ExecuteRequest {
@@ -18,8 +18,8 @@ export class ExecuteRequest {
     id: string;
     code: string;
     execute_promise: Promise<any>;
-    resolve: Function;
-    reject: Function;
+    resolve: Function | undefined;
+    reject: Function | undefined;
 };
 
 
@@ -33,7 +33,9 @@ export class SafeJSKernel {
 
         this.requests[request.id] = request;
 
-        this.worker.postMessage({ id: request.id, code: request.code });
+        if (this.worker) {
+            this.worker.postMessage({ id: request.id, code: request.code });
+        }
 
         return request.execute_promise;
     }
@@ -41,7 +43,7 @@ export class SafeJSKernel {
     initialize() {
         const blobURL = URL.createObjectURL(new Blob([
             '(',
-            function () {
+            function (this: any) {
                 const _postMessage = postMessage;
                 const _addEventListener = addEventListener;
 
@@ -71,7 +73,7 @@ export class SafeJSKernel {
 
                 _addEventListener('message', ({ data }) => {
                     const f = new Function('', `return (${data.code}\n);`);
-                    _postMessage({ id: data.id, result: f() }, undefined);
+                    _postMessage({ id: data.id, result: f() }, '');
                 });
             }.toString(),
             ')()'
@@ -83,18 +85,29 @@ export class SafeJSKernel {
 
         this.worker.onmessage = ({ data }) => {
             // Resolve the right Promise with the return value
-            this.requests[data.id].resolve(data.result);
+            if (this.requests) {
+                let item = this.requests[data.id];
+                if (item && item.resolve) {
+                    item.resolve(data.result);
+                }
+
+            }
+
             delete this.requests[data.id];
         };
 
         this.worker.onerror = ({ message }) => {
             // Reject all the pending promises, terminate the worker and start again
             forEach(this.requests, (request) => {
-                request.reject(message);
+                if (request && request.reject) {
+                    request.reject(message);
+                }
             });
             this.requests = {};
+            if (this.worker) {
+                this.worker.terminate();
+            }
 
-            this.worker.terminate();
 
             this.initialize();
         };
@@ -102,17 +115,18 @@ export class SafeJSKernel {
         URL.revokeObjectURL(blobURL);
     }
 
-    worker: Worker;
-    requests: { [key:string] : ExecuteRequest; } = {};
+    worker: Worker | undefined;
+    requests: { [key: string]: ExecuteRequest; } = {};
 }
 
 
 export class RendererModel extends widgets.WidgetModel {
     defaults() {
-        return {...widgets.WidgetModel.prototype.defaults(),
-            _model_name : 'RendererModel',
-            _model_module : 'ipysheet',
-            _model_module_version : semver_range,
+        return {
+            ...widgets.WidgetModel.prototype.defaults(),
+            _model_name: 'RendererModel',
+            _model_module: 'ipysheet_jabbera',
+            _model_module_version: semver_range,
             name: '',
             code: ''
         };
@@ -124,17 +138,20 @@ export class RendererModel extends widgets.WidgetModel {
         this.kernel = new SafeJSKernel();
 
         const that = this;
-        this.rendering_function = function (instance, td, row, col, prop, value, cellProperties) {
-            Handsontable.renderers.TextRenderer.apply(this, arguments);
+        this.rendering_function = function (instance, td: HTMLElement, row: number, col: number, prop: string | number, value: any, cellProperties: Handsontable.GridSettings) {
+            Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
 
-            that.kernel.execute(`(${that.get('code')})(${value})`).then((style) => {
-                (Object as any).assign(td.style, style);
-            });
+            if (that.kernel) {
+                that.kernel.execute(`(${that.get('code')})(${value})`).then((style) => {
+                    (Object as any).assign(td.style, style);
+                });
+            }
+
         };
 
         (Handsontable.renderers as any).registerRenderer(this.get('name'), this.rendering_function);
     }
 
-    kernel: SafeJSKernel;
-    rendering_function: Function;
+    kernel: SafeJSKernel | undefined;
+    rendering_function: Function | undefined;
 };
